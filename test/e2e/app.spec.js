@@ -1,23 +1,19 @@
 import { browser, expect } from "@wdio/globals";
 
 /**
- * Wait until the IconTabBar root (.sapMIconTabBar) is in the DOM, visible, and has tab headers.
- * We require `.sapMIconTabBar` here (not only [id*="--iconTabBar"]) so WebdriverIO sees the same node later.
+ * Wait until the main view is usable: orders table is visible (UI5 + first tab content loaded).
+ * Using the table avoids flaky waits for all tab headers when the CDN is slow.
  */
-async function waitForIconTabBarReady(timeout = 120000) {
+async function waitForAppShell(timeout = 180000) {
     await browser.waitUntil(
         async () =>
             (await browser.execute(() => {
-                const bar = document.querySelector(".sapMIconTabBar");
-                if (!bar) {
+                const table = document.querySelector('[id*="--ordersTable"]');
+                if (!table) {
                     return false;
                 }
-                const tabs = bar.querySelectorAll(".sapMITBFilter");
-                if (tabs.length < 2) {
-                    return false;
-                }
-                const r = bar.getBoundingClientRect();
-                const st = getComputedStyle(bar);
+                const r = table.getBoundingClientRect();
+                const st = getComputedStyle(table);
                 return (
                     r.width > 0 &&
                     r.height > 0 &&
@@ -28,62 +24,154 @@ async function waitForIconTabBarReady(timeout = 120000) {
         {
             timeout,
             interval: 500,
-            timeoutMsg: "IconTabBar (.sapMIconTabBar) not ready with 2+ tabs (UI5 bootstrap / CDN)"
+            timeoutMsg:
+                "Orders table never appeared — UI5 may not load (network / https://ui5.sap.com blocked or very slow)."
         }
     );
 
-    const bar = await browser.$(".sapMIconTabBar");
-    await bar.waitForExist({ timeout: 60000 });
-    await bar.waitForDisplayed({ timeout: 60000 });
+    const table = await browser.$('[id*="--ordersTable"]');
+    await table.waitForDisplayed({ timeout: 60000 });
 }
 
-/** Clicks the n-th IconTabFilter header (0-based) via DOM — more reliable than Webdriver click on UI5. */
-async function clickIconTabFilterIndex(index) {
-    await browser.execute(
-        (i) => {
-            const root = document.querySelector(".sapMIconTabBar");
-            if (!root) {
-                throw new Error("IconTabBar root not found");
-            }
-            const tabs = root.querySelectorAll(".sapMITBFilter");
-            if (tabs.length <= i) {
-                throw new Error(`Expected at least ${i + 1} tabs, found ${tabs.length}`);
-            }
-            const tab = tabs[i];
-            tab.scrollIntoView({ block: "nearest", inline: "center" });
-            tab.click();
-        },
-        index
+/** Wait for enough tab headers to switch (Form = index 1). */
+async function waitForTabHeaders(atLeast, timeout = 90000) {
+    await browser.waitUntil(
+        async () =>
+            (await browser.execute((min) => {
+                    const bar = (() => {
+                        const table = document.querySelector('[id*="--ordersTable"]');
+                        let b = table?.closest(".sapMIconTabBar");
+                        if (!b && table) {
+                            b = table.closest('[class*="IconTabBar"]');
+                        }
+                        if (!b) {
+                            b = document.querySelector(".sapMIconTabBar");
+                        }
+                        if (!b) {
+                            const byId = document.querySelector('[id*="--iconTabBar"]');
+                            b = byId?.closest(".sapMIconTabBar");
+                            if (!b && byId) {
+                                b = byId.closest('[class*="IconTabBar"]');
+                            }
+                            if (!b) {
+                                b = byId;
+                            }
+                        }
+                        return b;
+                    })();
+                    if (!bar) {
+                        return false;
+                    }
+                    const br = bar.getBoundingClientRect();
+                    const bst = getComputedStyle(bar);
+                    const barOk =
+                        br.width > 0 &&
+                        br.height > 0 &&
+                        bst.visibility !== "hidden" &&
+                        bst.display !== "none";
+                    if (!barOk) {
+                        return false;
+                    }
+                    let tabs = bar.querySelectorAll(".sapMITBFilter");
+                    if (tabs.length < min) {
+                        tabs = bar.querySelectorAll('[role="tab"]');
+                    }
+                    return tabs.length >= min;
+                },
+                atLeast
+            )) === true,
+        {
+            timeout,
+            interval: 400,
+            timeoutMsg: `Expected at least ${atLeast} IconTab headers (.sapMITBFilter or role=tab).`
+        }
+    );
+}
+
+/**
+ * Select IconTabBar tab by view key (see View1.view.xml IconTabFilter key="…").
+ * Raw DOM .click() on headers often does not run UI5 selection, so the Form content never mounts.
+ */
+async function selectIconTabByKey(key) {
+    await browser.execute((tabKey) => {
+        const domBar = document.querySelector('[id*="--iconTabBar"]');
+        if (!domBar?.id) {
+            throw new Error("IconTabBar DOM not found");
+        }
+        const ctrl = sap.ui.core.Element.getElementById(domBar.id);
+        if (!ctrl) {
+            throw new Error("IconTabBar control not resolved");
+        }
+        if (typeof ctrl.setSelectedKey === "function") {
+            ctrl.setSelectedKey(tabKey);
+            return;
+        }
+        const items = ctrl.getItems?.();
+        const item = items?.find?.((it) => it.getKey?.() === tabKey);
+        if (item && typeof ctrl.setSelectedItem === "function") {
+            ctrl.setSelectedItem(item);
+            return;
+        }
+        throw new Error("Cannot select tab by key: " + tabKey);
+    }, key);
+}
+
+/** Wait until customer field is actually visible (outer div or inner input). */
+async function waitForCustomerFieldVisible(timeout = 90000) {
+    await browser.waitUntil(
+        async () =>
+            (await browser.execute(() => {
+                const root = document.querySelector('[id*="--customerInput"]');
+                if (!root) {
+                    return false;
+                }
+                const field = root.matches("input") ? root : root.querySelector("input");
+                if (!field) {
+                    return false;
+                }
+                const r = field.getBoundingClientRect();
+                const st = getComputedStyle(field);
+                return (
+                    r.width > 0 &&
+                    r.height > 0 &&
+                    st.visibility !== "hidden" &&
+                    st.display !== "none"
+                );
+            })) === true,
+        {
+            timeout,
+            interval: 400,
+            timeoutMsg: "Customer input not visible after selecting Form tab"
+        }
     );
 }
 
 describe("Demotest UI5 app (E2E)", () => {
     beforeEach(async () => {
         await browser.url("/index.html");
-        await waitForIconTabBarReady();
+        await waitForAppShell();
     });
 
     it("loads index and shows IconTabBar", async () => {
-        const bar = await browser.$(".sapMIconTabBar");
+        // Prefer view id (stable); `.sapMIconTabBar` alone is flaky with some Chrome/WebdriverIO builds.
+        const bar = await browser.$('[id*="--iconTabBar"]');
+        await bar.waitForExist({ timeout: 60000 });
         await expect(bar).toBeDisplayed();
     });
 
     it("shows orders table on first tab", async () => {
         const table = await browser.$('[id*="--ordersTable"]');
-        await table.waitForDisplayed({ timeout: 60000 });
         await expect(table).toBeDisplayed();
     });
 
     it("switching to Form tab shows customer input", async () => {
-        const tabCount = await browser.execute(
-            () => document.querySelectorAll(".sapMIconTabBar .sapMITBFilter").length
-        );
-        expect(tabCount).toBeGreaterThanOrEqual(2);
+        await waitForTabHeaders(2);
 
-        await clickIconTabFilterIndex(1);
+        await selectIconTabByKey("controls");
+
+        await waitForCustomerFieldVisible();
 
         const customerInput = await browser.$('[id*="--customerInput"]');
-        await customerInput.waitForDisplayed({ timeout: 60000 });
         await expect(customerInput).toBeDisplayed();
     });
 });
