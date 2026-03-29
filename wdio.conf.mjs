@@ -39,7 +39,8 @@ export const config = {
 
     mochaOpts: {
         ui: "bdd",
-        timeout: 120000
+        // beforeEach can wait up to 120s for UI5 CDN + each test adds waits; CI needs headroom.
+        timeout: 300000
     },
 
     /**
