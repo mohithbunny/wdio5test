@@ -8,12 +8,20 @@
     "sapui5"
   ],
   "main": "webapp/index.html",
-  "dependencies": {},
   "devDependencies": {
-    "@ui5/cli": "^4.0.33",
-    "@sap/ux-ui5-tooling": "1",
     "@sap-ux/eslint-plugin-fiori-tools": "^9.0.0",
-    "eslint": "^9"
+    "@sap/ux-ui5-tooling": "1",
+    "@ui5/cli": "^4.0.33",
+    "@wdio/cli": "^9.27.0",
+    "@wdio/json-reporter": "^9.20.0",
+    "@wdio/junit-reporter": "^9.27.0",
+    "@wdio/local-runner": "^9.27.0",
+    "@wdio/mocha-framework": "^9.27.0",
+    "@wdio/spec-reporter": "^9.27.0",
+    "eslint": "^9",
+    "http-server": "^14.1.1",
+    "start-server-and-test": "^2.1.5",
+    "webdriverio": "^9.27.0"
   },
   "scripts": {
     "start": "fiori run --open \"test/flp.html#app-preview\"",
@@ -25,7 +33,10 @@
     "start-noflp": "fiori run --open \"/index.html?sap-ui-xx-viewCache=false\"",
     "int-test": "fiori run --open \"test/integration/opaTests.qunit.html\"",
     "start-variants-management": "fiori run --open \"/preview.html#app-preview\"",
-    "unit-test": "fiori run --open \"test/unit/unitTests.qunit.html\""
+    "unit-test": "fiori run --open \"test/unit/unitTests.qunit.html\"",
+    "serve:dist": "http-server dist -p 8080 -c-1",
+    "test:e2e": "wdio run wdio.conf.mjs",
+    "ci:test:e2e": "npm run build && start-server-and-test serve:dist http://127.0.0.1:8080/index.html test:e2e"
   },
   "sapuxLayer": "CUSTOMER_BASE"
 }
