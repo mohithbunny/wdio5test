@@ -135,7 +135,7 @@
                             class="sapUiResponsiveMargin">
                             <headerToolbar>
                                 <OverflowToolbar>
-                                    <ToolbarTitle text="{i18n>panelSummary}" />
+                                    <Title text="{i18n>panelSummary}" level="H5" />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://refresh" press="onRefreshFeed" tooltip="{i18n>btnRefresh}" />
                                 </OverflowToolbar>
