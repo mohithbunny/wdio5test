@@ -24,7 +24,11 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Install, build, run E2E
+      # Required: without this, `ui5` / `wdio` from devDependencies are missing (exit 127).
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build, serve dist, run E2E
         run: npm run ci:test:e2e
 
       - name: Upload E2E report files
