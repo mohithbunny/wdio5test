@@ -3,7 +3,9 @@
 
 name: Deploy to GitHub Pages
 
-on: ["test"]
+on:
+  push:
+    branches: [ "test/wdi5" ]
 
 permissions:
   contents: read
