@@ -19,7 +19,7 @@
 ## demotest
 
 An SAP Fiori application.
-![Rolex Careline Architecture Diagram](webapp/architecture_rc.png)
+![Rolex Careline Architecture Diagram](webapp/rc_final.png)
 ### Starting the generated app
 
 -   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  To launch the generated application, run the following from the generated application root folder:
