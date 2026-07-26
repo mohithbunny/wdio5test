@@ -1,0 +1,42 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m">
+    <Dialog
+        id="manageMembersDialog"
+        title="{i18n>dialogManageMembers}"
+        type="Standard">
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Title text="{i18n>activeMembersTitle}" level="H4" class="sapUiSmallMarginBottom" />
+                <List items="{view>/activeMembers}" mode="None" class="sapUiSmallMarginBottom">
+                    <StandardListItem
+                        title="{view>name}"
+                        description="{view>email}"
+                        icon="sap-icon://person-placeholder"
+                        type="Inactive" />
+                </List>
+
+                <Title text="{i18n>pendingMembersTitle}" level="H4" class="sapUiSmallMarginBottom sapUiMediumMarginTop" />
+                <List items="{view>/pendingMembers}" mode="None">
+                    <StandardListItem
+                        title="{view>name}"
+                        description="{view>email}"
+                        icon="sap-icon://person"
+                        type="Inactive" />
+                </List>
+            </VBox>
+        </content>
+        <beginButton>
+            <Button
+                text="{i18n>btnSave}"
+                type="Emphasized"
+                press="onSaveMembers" />
+        </beginButton>
+        <endButton>
+            <Button
+                text="{i18n>btnCancel}"
+                press="onCancelDialog" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
