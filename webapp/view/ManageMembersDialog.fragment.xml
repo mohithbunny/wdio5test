@@ -8,23 +8,51 @@
         type="Standard">
         <content>
             <VBox class="sapUiSmallMargin">
-                <Title text="{i18n>activeMembersTitle}" level="H4" class="sapUiSmallMarginBottom" />
-                <List items="{view>/activeMembers}" mode="None" class="sapUiSmallMarginBottom">
-                    <StandardListItem
-                        title="{view>name}"
-                        description="{view>email}"
-                        icon="sap-icon://person-placeholder"
-                        type="Inactive" />
-                </List>
+                <MessageStrip
+                    text="{i18n>membersDialogMessage}"
+                    type="Information"
+                    showIcon="true"
+                    class="sapUiSmallMarginBottom" />
 
-                <Title text="{i18n>pendingMembersTitle}" level="H4" class="sapUiSmallMarginBottom sapUiMediumMarginTop" />
-                <List items="{view>/pendingMembers}" mode="None">
-                    <StandardListItem
-                        title="{view>name}"
-                        description="{view>email}"
-                        icon="sap-icon://person"
-                        type="Inactive" />
-                </List>
+                <IconTabBar
+                    id="membersIconTabBar"
+                    expanded="true"
+                    class="sapUiResponsiveContentPadding"
+                    select="onMembersTabSelect">
+                    <items>
+                        <IconTabFilter text="{i18n>activeMembersTitle}" icon="sap-icon://person-placeholder" key="active">
+                            <content>
+                                <List
+                                    id="activeMembersList"
+                                    items="{view>/activeMembers}"
+                                    mode="None"
+                                    class="sapUiSmallMargin">
+                                    <StandardListItem
+                                        title="{view>name}"
+                                        description="{view>email}"
+                                        icon="sap-icon://person-placeholder"
+                                        type="Inactive" />
+                                </List>
+                            </content>
+                        </IconTabFilter>
+
+                        <IconTabFilter text="{i18n>pendingMembersTitle}" icon="sap-icon://person" key="pending">
+                            <content>
+                                <List
+                                    id="pendingMembersList"
+                                    items="{view>/pendingMembers}"
+                                    mode="None"
+                                    class="sapUiSmallMargin">
+                                    <StandardListItem
+                                        title="{view>name}"
+                                        description="{view>email}"
+                                        icon="sap-icon://person"
+                                        type="Inactive" />
+                                </List>
+                            </content>
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
             </VBox>
         </content>
         <beginButton>
