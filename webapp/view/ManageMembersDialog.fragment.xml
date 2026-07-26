@@ -4,29 +4,33 @@
     xmlns="sap.m">
     <Dialog
         id="manageMembersDialog"
-        title="{i18n>dialogManageMembers}"
-        type="Standard">
+        title="{i18n>manageMembersTitle}"
+        type="Standard"
+        resizable="true">
         <content>
             <VBox class="sapUiSmallMargin">
                 <MessageStrip
-                    text="{i18n>membersDialogMessage}"
+                    text="Open first tab to view contents in tab1 and second tab to view contents in tab 2 after checking list please close the tab"
                     type="Information"
                     showIcon="true"
                     class="sapUiSmallMarginBottom" />
-
+            </VBox>
+            <VBox fitContainer="true">
                 <IconTabBar
                     id="membersIconTabBar"
                     expanded="true"
                     class="sapUiResponsiveContentPadding"
-                    select="onMembersTabSelect">
+                    select="onMembersTabSelect"
+                    height="100%">
                     <items>
-                        <IconTabFilter text="{i18n>activeMembersTitle}" icon="sap-icon://person-placeholder" key="active">
+                        <IconTabFilter text="{i18n>tabActiveMembers}" icon="sap-icon://person-placeholder" key="active">
                             <content>
                                 <List
                                     id="activeMembersList"
                                     items="{view>/activeMembers}"
                                     mode="None"
-                                    class="sapUiSmallMargin">
+                                    class="sapUiSmallMargin"
+                                    height="270px">
                                     <StandardListItem
                                         title="{view>name}"
                                         description="{view>email}"
@@ -36,13 +40,14 @@
                             </content>
                         </IconTabFilter>
 
-                        <IconTabFilter text="{i18n>pendingMembersTitle}" icon="sap-icon://person" key="pending">
+                        <IconTabFilter text="{i18n>tabPendingMembers}" icon="sap-icon://person" key="pending">
                             <content>
                                 <List
                                     id="pendingMembersList"
                                     items="{view>/pendingMembers}"
                                     mode="None"
-                                    class="sapUiSmallMargin">
+                                    class="sapUiSmallMargin"
+                                    height="270px">
                                     <StandardListItem
                                         title="{view>name}"
                                         description="{view>email}"
