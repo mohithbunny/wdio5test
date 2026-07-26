@@ -4,6 +4,15 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
     <Page id="page" title="{i18n>title}" showNavButton="false">
+        <headerContent>
+            <Button
+                id="manageMembersBtn"
+                text="{i18n>btnManageMembers}"
+                icon="sap-icon://group"
+                press="onManageMembers"
+                type="Emphasized"
+                class="sapUiSmallMargin" />
+        </headerContent>
         <IconTabBar
             id="iconTabBar"
             expanded="{device>/isNoPhone}"
