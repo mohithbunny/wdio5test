@@ -2,8 +2,9 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], (Controller, JSONModel, MessageToast, MessageBox) => {
+    "sap/m/MessageBox",
+    "sap/ui/core/Fragment"
+], (Controller, JSONModel, MessageToast, MessageBox, Fragment) => {
     "use strict";
 
     const buildInitialData = () => ({
@@ -67,6 +68,30 @@ sap.ui.define([
                 title: "GitHub Pages",
                 description: "Static hosting works when UI5 core is loaded from CDN.",
                 icon: "sap-icon://it-host"
+            }
+        ],
+        activeMembers: [
+            {
+                name: "John Smith",
+                email: "john.smith@example.com"
+            },
+            {
+                name: "Jane Doe",
+                email: "jane.doe@example.com"
+            },
+            {
+                name: "Michael Johnson",
+                email: "michael.johnson@example.com"
+            }
+        ],
+        pendingMembers: [
+            {
+                name: "Alice Williams",
+                email: "alice.williams@example.com"
+            },
+            {
+                name: "Bob Brown",
+                email: "bob.brown@example.com"
             }
         ]
     });
@@ -153,6 +178,36 @@ sap.ui.define([
             }
             const oRB = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             MessageToast.show(oRB.getText("msgFeedItem", [oCtx.getProperty("title")]));
+        },
+
+        onManageMembers() {
+            const oView = this.getView();
+            if (!this.oManageMembersDialog) {
+                Fragment.load({
+                    id: oView.getId(),
+                    name: "demotest.view.ManageMembersDialog",
+                    controller: this
+                }).then((oDialog) => {
+                    oView.addDependent(oDialog);
+                    this.oManageMembersDialog = oDialog;
+                    this.oManageMembersDialog.open();
+                }).catch((oError) => {
+                    const oRB = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+                    MessageBox.error(oRB.getText("errDialogLoad", [oError]));
+                });
+            } else {
+                this.oManageMembersDialog.open();
+            }
+        },
+
+        onSaveMembers() {
+            const oRB = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            MessageToast.show(oRB.getText("msgMembersSaved"));
+            this.oManageMembersDialog.close();
+        },
+
+        onCancelDialog() {
+            this.oManageMembersDialog.close();
         }
     });
 });
