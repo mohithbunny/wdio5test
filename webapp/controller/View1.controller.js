@@ -7,94 +7,86 @@ sap.ui.define([
 ], (Controller, JSONModel, MessageToast, MessageBox, Fragment) => {
     "use strict";
 
-    const buildInitialData = () => ({
-        orders: [
-            {
-                orderId: "4500000123",
-                customer: "Acme Corporation",
-                status: "Open",
-                statusState: "Warning",
-                amount: 12840.5,
-                currency: "USD"
+    const buildInitialData = () => {
+        // Generate 30 active members
+        const activeMembers = Array.from({ length: 30 }, (_, i) => ({
+            name: `Active Member ${i + 1}`,
+            email: `active.member${i + 1}@example.com`
+        }));
+
+        // Generate 30 pending members
+        const pendingMembers = Array.from({ length: 30 }, (_, i) => ({
+            name: `Pending Member ${i + 1}`,
+            email: `pending.member${i + 1}@example.com`
+        }));
+
+        return {
+            orders: [
+                {
+                    orderId: "4500000123",
+                    customer: "Acme Corporation",
+                    status: "Open",
+                    statusState: "Warning",
+                    amount: 12840.5,
+                    currency: "USD"
+                },
+                {
+                    orderId: "4500000456",
+                    customer: "Northwind Traders",
+                    status: "Shipped",
+                    statusState: "Success",
+                    amount: 932.1,
+                    currency: "EUR"
+                },
+                {
+                    orderId: "4500000789",
+                    customer: "Contoso Ltd",
+                    status: "Blocked",
+                    statusState: "Error",
+                    amount: 21500,
+                    currency: "USD"
+                },
+                {
+                    orderId: "4500000991",
+                    customer: "Fabrikam Industries",
+                    status: "Open",
+                    statusState: "Information",
+                    amount: 3400.75,
+                    currency: "GBP"
+                }
+            ],
+            ordersAll: [],
+            form: {
+                customer: "",
+                notes: "",
+                priority: "M",
+                urgent: false,
+                dueDate: null
             },
-            {
-                orderId: "4500000456",
-                customer: "Northwind Traders",
-                status: "Shipped",
-                statusState: "Success",
-                amount: 932.1,
-                currency: "EUR"
-            },
-            {
-                orderId: "4500000789",
-                customer: "Contoso Ltd",
-                status: "Blocked",
-                statusState: "Error",
-                amount: 21500,
-                currency: "USD"
-            },
-            {
-                orderId: "4500000991",
-                customer: "Fabrikam Industries",
-                status: "Open",
-                statusState: "Information",
-                amount: 3400.75,
-                currency: "GBP"
-            }
-        ],
-        ordersAll: [],
-        form: {
-            customer: "",
-            notes: "",
-            priority: "M",
-            urgent: false,
-            dueDate: null
-        },
-        feedItems: [
-            {
-                key: "n1",
-                title: "Demo: IconTabBar",
-                description: "Orders, form controls, and overview in one page.",
-                icon: "sap-icon://hint"
-            },
-            {
-                key: "n2",
-                title: "Table with toolbar",
-                description: "Sortable-style layout with search filter on live change.",
-                icon: "sap-icon://table-chart"
-            },
-            {
-                key: "n3",
-                title: "GitHub Pages",
-                description: "Static hosting works when UI5 core is loaded from CDN.",
-                icon: "sap-icon://it-host"
-            }
-        ],
-        activeMembers: [
-            {
-                name: "John Smith",
-                email: "john.smith@example.com"
-            },
-            {
-                name: "Jane Doe",
-                email: "jane.doe@example.com"
-            },
-            {
-                name: "Michael Johnson",
-                email: "michael.johnson@example.com"
-            }
-        ],
-        pendingMembers: [
-            {
-                name: "Alice Williams",
-                email: "alice.williams@example.com"
-            },
-            {
-                name: "Bob Brown",
-                email: "bob.brown@example.com"
-            }
-        ]
-    });
+            feedItems: [
+                {
+                    key: "n1",
+                    title: "Demo: IconTabBar",
+                    description: "Orders, form controls, and overview in one page.",
+                    icon: "sap-icon://hint"
+                },
+                {
+                    key: "n2",
+                    title: "Table with toolbar",
+                    description: "Sortable-style layout with search filter on live change.",
+                    icon: "sap-icon://table-chart"
+                },
+                {
+                    key: "n3",
+                    title: "GitHub Pages",
+                    description: "Static hosting works when UI5 core is loaded from CDN.",
+                    icon: "sap-icon://it-host"
+                }
+            ],
+            activeMembers: activeMembers,
+            pendingMembers: pendingMembers
+        };
+    };
 
     return Controller.extend("demotest.controller.View1", {
         onInit() {
@@ -178,6 +170,13 @@ sap.ui.define([
             }
             const oRB = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             MessageToast.show(oRB.getText("msgFeedItem", [oCtx.getProperty("title")]));
+        },
+
+        onMembersTabSelect(oEvent) {
+            const sKey = oEvent.getParameter("key");
+            const oRB = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            const sTabName = sKey === "active" ? "Active Members" : "Pending Members";
+            MessageToast.show(`Switched to ${sTabName}`, { duration: 1000 });
         },
 
         onManageMembers() {
