@@ -5,7 +5,7 @@
     <Dialog
         id="manageMembersDialog"
         title="{i18n>manageMembersTitle}"
-        type="Standard"'
+        type="Standard"
         contentWidth="250px"
         resizable="true">
         <content>
